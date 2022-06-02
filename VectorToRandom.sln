@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32505.173
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VectorToRandom", "VectorToRandom\VectorToRandom.csproj", "{D3885D2C-6089-4132-B137-CCE00BB0C349}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D3885D2C-6089-4132-B137-CCE00BB0C349}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3885D2C-6089-4132-B137-CCE00BB0C349}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3885D2C-6089-4132-B137-CCE00BB0C349}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3885D2C-6089-4132-B137-CCE00BB0C349}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DA0D5905-3234-418B-8784-31470A55244A}
+	EndGlobalSection
+EndGlobal
