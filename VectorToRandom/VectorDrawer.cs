@@ -13,6 +13,7 @@ namespace VectorToRandom {
 
         Point startPoint;
         DateTime startDateTime;
+        Color pointColor = Color.FromArgb(255, 255, 254);
 
         List<Vector> vectorList;
         Graphics g;
@@ -30,18 +31,13 @@ namespace VectorToRandom {
 
         private void VectorDrawer_MouseClick(object sender, MouseEventArgs e) {
             if (startPoint.X != e.X || startPoint.Y != e.Y) {
-                vectorList.Clear();
-                vectorList.Add(new Vector(startPoint, e.Location, DateTime.Now.Subtract(startDateTime).TotalMilliseconds));
-                DrawPoints();
-                timer1.Interval = 1;
-                timer1.Enabled = true;
-            }
-
+                vectorList.Add(new Vector(new PointD(startPoint), new PointD(e.Location), DateTime.Now.Subtract(startDateTime).TotalMilliseconds, this.Width, this.Height));
+            } 
         }
 
 
         private void DrawPoints() {
-            //g.Clear(Color.FromArgb(64, 64, 64));
+            g.Clear(Color.FromArgb(64, 64, 64));
             //g.DrawLine(new Pen(Brushes.Red), vectorList[0].StartPoint, vectorList[0].EndPoint);
             //g.DrawRectangle(new Pen(Brushes.Blue), new Rectangle(vectorList[0].StartPoint, new Size(5, 5)));
 
@@ -56,11 +52,17 @@ namespace VectorToRandom {
             //g.DrawRectangle(new Pen(Brushes.Blue), new Rectangle(Width - 60, Height - 60, 5, 5));
             //g.DrawLine(new Pen(Brushes.Red), Width - 60, Height - 60, (float)(Width - 60) + (float)(15 * Math.Cos(vectorList[0].angle / (double)180 * Math.PI)), (float)(Height - 60) + (float)(15 * Math.Sin(vectorList[0].angle / (double)180 * Math.PI)));
 
-            //for (int i = 0; i < vectorList[0].Points.Count; i++) {
-            //    g.DrawRectangle(new Pen(Brushes.Yellow), new Rectangle((int)vectorList[0].Points[i].X, (int)vectorList[0].Points[i].Y, 3, 3));
-            //}
+            pointColor = updateColor(pointColor);
 
-            g.DrawRectangle(new Pen(Brushes.Yellow), new Rectangle((int)vectorList[0].Points[vectorList[0].Points.Count - 1].X, (int)vectorList[0].Points[vectorList[0].Points.Count - 1].Y, 1, 1));
+            for (int i = 0; i < vectorList.Count; i++) {
+                for (int j = 0; j < vectorList[i].Points.Count; j++) {
+                    g.DrawRectangle(new Pen(pointColor), new Rectangle((int)vectorList[i].Points[j].X, (int)vectorList[i].Points[j].Y, 1, 1));
+                }
+            }
+
+            
+
+            //g.DrawRectangle(new Pen(pointColor), new Rectangle((int)vectorList[0].Points[vectorList[0].Points.Count - 1].X, (int)vectorList[0].Points[vectorList[0].Points.Count - 1].Y, 1, 1));
 
         }
 
@@ -68,17 +70,50 @@ namespace VectorToRandom {
             g = this.CreateGraphics();
         }
 
+        private Color updateColor(Color c) {
+            if (c.R == 255 && c.G == 255) {
+                if (c.B == 254) {
+                    return Color.FromArgb(0, 255, 255);
+                } else {
+                    return Color.FromArgb(255, 255, c.B + 1);
+                }
+            } else if (c.G == 255 && c.B == 255) {
+                if (c.R == 254) {
+                    return Color.FromArgb(255, 0, 255);
+                } else {
+                    return Color.FromArgb(c.R + 1, 255, 255);
+                }
+            } else if (c.R == 255 && c.B == 255) {
+                if (c.G == 254) {
+                    return Color.FromArgb(255, 255, 0);
+                } else {
+                    return Color.FromArgb(255, c.G + 1, 255);
+                }
+            } else {
+                return c;
+            }
+        }
+
         private void timer1_Tick(object sender, EventArgs e) {
-            if (vectorList[0].Points.Count == 1000)
-                vectorList[0].Points.RemoveAt(0);
-            vectorList[0].Points.Add(vectorList[0].calcNextPoint(this.Height, this.Width));
-            Console.WriteLine(vectorList[0].Points[vectorList[0].Points.Count - 1].ToString());
+
+            for (int i = 0; i < vectorList.Count; i++) {
+                vectorList[i].calcNextPoint();
+            }
+
             DrawPoints();
+
         }
 
         private void button1_Click(object sender, EventArgs e) {
             vectorList.Clear();
-            vectorList.Add(new Vector(new Point(210, 250), new Point(10, 50), DateTime.Now.Subtract(startDateTime).TotalMilliseconds));
+
+            //test A
+            //vectorList.Add(new Vector(new Point(210, 250), new Point(10, 50), DateTime.Now.Subtract(startDateTime).TotalMilliseconds));
+
+            //506, 265, 520, 226 nice patetn
+            vectorList.Add(new Vector(new PointD(506, 265), new PointD(520, 226), 327, this.Width, this.Height));
+
+
             DrawPoints();
             timer1.Interval = 1;
             timer1.Enabled = true;
@@ -88,91 +123,212 @@ namespace VectorToRandom {
 
     class Vector {
 
-        Point startPoint, endPoint;
-        PointF actualPoint, nextPointOffcet;
-        List<PointF> points = new List<PointF>();
-        public double timeMS, angle, speed;
+        PointD startPoint, endPoint;
+        PointD actualPoint, nextPointOffcet;
+        List<PointD> points = new List<PointD>();
+        public double width, height, timeMS, initialAngle, speed;
 
-        public Vector(Point startPoint, Point endPoint, double timeMS) {
-            this.timeMS = timeMS;
+        const int MaxElemtns = 10;
+
+        public Vector(PointD startPoint, PointD endPoint, double timeMS, double width, double height) {
             this.startPoint = startPoint;
             this.endPoint = endPoint;
             this.actualPoint = endPoint;
 
-            angle = (Math.Atan((((double)endPoint.Y - (double)startPoint.Y)) / ((double)endPoint.X - (double)startPoint.X)) / Math.PI) * (double)180;
+            this.timeMS = timeMS;
+            this.width = width;
+            this.height = height;
 
-            if (startPoint.X > endPoint.X) { angle += 180; } else if (startPoint.Y > endPoint.Y && startPoint.X <= endPoint.X) { angle += 360; }
+            initialAngle = (Math.Atan((((double)endPoint.Y - (double)startPoint.Y)) / ((double)endPoint.X - (double)startPoint.X)) / Math.PI) * (double)180;
+
+            if (startPoint.X > endPoint.X) { initialAngle += 180; } else if (startPoint.Y > endPoint.Y && startPoint.X <= endPoint.X) { initialAngle += 360; }
 
             speed = Math.Sqrt(Math.Pow(Math.Abs(startPoint.X) - Math.Abs(endPoint.X), 2) + Math.Pow(Math.Abs(startPoint.Y) - Math.Abs(endPoint.Y), 2)) / timeMS;
 
-            nextPointOffcet = new PointF(endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
+            nextPointOffcet = new PointD(endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
+            nextPointOffcet = new PointD(nextPointOffcet.X / speed, nextPointOffcet.Y / speed);
 
             points.Add(startPoint);
             points.Add(endPoint);
         }
 
-        public PointF calcNextPoint(int height, int width) {
+        public PointD calcNextPoint() {
+            if (points.Count == MaxElemtns)
+                points.RemoveAt(0);
+
             if (points[points.Count - 1].X + nextPointOffcet.X <= width) {
                 if (points[points.Count - 1].X + nextPointOffcet.X >= 0) {
                     if (points[points.Count - 1].Y + nextPointOffcet.Y <= height) {
                         if (points[points.Count - 1].Y + nextPointOffcet.Y >= 0) {
-                            return new PointF(points[points.Count - 1].X + nextPointOffcet.X, points[points.Count - 1].Y + nextPointOffcet.Y); //base DONE
+                            //Normal DONE
+                            actualPoint = new PointD(points[points.Count - 1].X + nextPointOffcet.X, points[points.Count - 1].Y + nextPointOffcet.Y);
+                            points.Add(actualPoint);
+                            return actualPoint;
                         } else {
-                            nextPointOffcet = new PointF(nextPointOffcet.X, nextPointOffcet.Y * -1);
-                            return new PointF(points[points.Count - 1].X + nextPointOffcet.X, (points[points.Count - 1].Y + (nextPointOffcet.Y * -1)) * -1); //colition on top Done
+                            //Colition Top DONE
+                            nextPointOffcet = new PointD(nextPointOffcet.X, nextPointOffcet.Y * -1);
+                            actualPoint = new PointD(points[points.Count - 1].X + nextPointOffcet.X, (points[points.Count - 1].Y + (nextPointOffcet.Y * -1)) * -1); ;
+                            points.Add(actualPoint);
+                            return actualPoint;
                         }
                     } else {
-                        nextPointOffcet = new PointF(nextPointOffcet.X, nextPointOffcet.Y * -1);
-                        return new PointF(points[points.Count - 1].X + nextPointOffcet.X, height - ((points[points.Count - 1].Y + (nextPointOffcet.Y * -1)) - height)); //colition on bottom DONE
+                        //Colition Bottom DONE
+                        nextPointOffcet = new PointD(nextPointOffcet.X, nextPointOffcet.Y * -1);
+                        actualPoint = new PointD(points[points.Count - 1].X + nextPointOffcet.X, height - ((points[points.Count - 1].Y + (nextPointOffcet.Y * -1)) - height));
+                        points.Add(actualPoint);
+                        return actualPoint;
                     }
                 } else {
                     if (points[points.Count - 1].Y + nextPointOffcet.Y <= height) {
                         if (points[points.Count - 1].Y + nextPointOffcet.Y >= 0) {
-                            nextPointOffcet = new PointF(nextPointOffcet.X * -1, nextPointOffcet.Y);
-                            return new PointF((points[points.Count - 1].X + (nextPointOffcet.X * -1)) * -1, points[points.Count - 1].Y + nextPointOffcet.Y); //colition on left Done
+                            //Colition Left Done
+                            nextPointOffcet = new PointD(nextPointOffcet.X * -1, nextPointOffcet.Y);
+                            actualPoint = new PointD((points[points.Count - 1].X + (nextPointOffcet.X * -1)) * -1, points[points.Count - 1].Y + nextPointOffcet.Y);
+                            return actualPoint;
                         } else {
-                            nextPointOffcet = new PointF(nextPointOffcet.X * -1, nextPointOffcet.Y * -1);
+                            //Colition Top Left DONE
                             Console.Write("A");
-                            return new PointF((points[points.Count - 1].X + (nextPointOffcet.X * -1)) * -1, (points[points.Count - 1].Y + (nextPointOffcet.Y * -1)) * -1); //colition on top and left DONE
+                            nextPointOffcet = new PointD(nextPointOffcet.X * -1, nextPointOffcet.Y * -1);
+                            actualPoint = new PointD((points[points.Count - 1].X + (nextPointOffcet.X * -1)) * -1, (points[points.Count - 1].Y + (nextPointOffcet.Y * -1)) * -1);
+                            points.Add(actualPoint);
+                            return actualPoint;
                         }
                     } else {
+                        //Colition Bottom Left DEBUG
                         Console.Write("B");
-                        return new PointF((points[points.Count - 1].X + (nextPointOffcet.X * -1)) * -1, height - ((points[points.Count - 1].Y + (nextPointOffcet.Y * -1)) - height)); //colition on bottom and left TODO
+                        nextPointOffcet = new PointD(nextPointOffcet.X * -1, nextPointOffcet.Y * -1);
+                        actualPoint = new PointD((points[points.Count - 1].X + (nextPointOffcet.X * -1)) * -1, height - ((points[points.Count - 1].Y + (nextPointOffcet.Y * -1)) - height));
+                        points.Add(actualPoint);
+                        return actualPoint;
                     }
                 }
             } else {
                 if (points[points.Count - 1].X + nextPointOffcet.X >= 0) {
                     if (points[points.Count - 1].Y + nextPointOffcet.Y <= height) {
                         if (points[points.Count - 1].Y + nextPointOffcet.Y >= 0) {
-                            nextPointOffcet = new PointF(nextPointOffcet.X * -1, nextPointOffcet.Y);
-                            return new PointF(width - ((points[points.Count - 1].X + (nextPointOffcet.X * -1)) - width), points[points.Count - 1].Y + nextPointOffcet.Y); //colition on right DONE
+                            //Colition Right DONE
+                            nextPointOffcet = new PointD(nextPointOffcet.X * -1, nextPointOffcet.Y);
+                            actualPoint = new PointD(width - ((points[points.Count - 1].X + (nextPointOffcet.X * -1)) - width), points[points.Count - 1].Y + nextPointOffcet.Y);
+                            points.Add(actualPoint);
+                            return actualPoint;
                         } else {
-                            nextPointOffcet = new PointF(nextPointOffcet.X, nextPointOffcet.Y * -1);
+                            //Colition Top Right DEBUG
                             Console.Write("C");
-                            return new PointF(width - ((points[points.Count - 1].X + (nextPointOffcet.X * -1)) - width), (points[points.Count - 1].Y + (nextPointOffcet.Y * -1)) * -1); //colition on top right TODO
+                            nextPointOffcet = new PointD(nextPointOffcet.X * -1, nextPointOffcet.Y * -1);
+                            actualPoint = new PointD(width - ((points[points.Count - 1].X + (nextPointOffcet.X * -1)) - width), (points[points.Count - 1].Y + (nextPointOffcet.Y * -1)) * -1);
+                            points.Add(actualPoint);
+                            return actualPoint;
                         }
                     } else {
-                        nextPointOffcet = new PointF(nextPointOffcet.X, nextPointOffcet.Y * -1);
+                        //Colition Bottom Right TODO
                         Console.Write("D");
-                        return new PointF(width - ((points[points.Count - 1].X + (nextPointOffcet.X * -1)) - width), height - ((points[points.Count - 1].Y + (nextPointOffcet.Y * -1)) - height)); //colition on bottom RIGHT TODO
+                        nextPointOffcet = new PointD(nextPointOffcet.X * -1, nextPointOffcet.Y * -1);
+                        actualPoint = new PointD(width - ((points[points.Count - 1].X + (nextPointOffcet.X * -1)) - width), height - ((points[points.Count - 1].Y + (nextPointOffcet.Y * -1)) - height));
+                        points.Add(actualPoint);
+                        return actualPoint;
                     }
                 }
             }
 
-            return new PointF(0, 0);
+            return new PointD(0, 0);
         }
 
-        public List<PointF> Points {
+        public string toString() {
+            return 
+                "{StartP=" + startPoint + ", EndP=" + endPoint + ", ActualP=" + actualPoint + 
+                ", NextPO=" + nextPointOffcet + ", Width=" + width + ", Height=" + height + 
+                ", TimeMS=" + timeMS + " InitialAngle=" + initialAngle + ", Speed=" + speed + "}";
+        }
+
+        public List<PointD> Points {
             get { return points; }
         }
 
-        public Point StartPoint {
+        public PointD StartPoint {
             get { return startPoint; }
         }
 
-        public Point EndPoint {
+        public PointD EndPoint {
             get { return endPoint; }
         }
+
+        public PointD ActualPoint {
+            get { return actualPoint; }
+        }
+
+        public PointD NextPointOffcet {
+            get { return nextPointOffcet; }
+        }
+
+        public double InitialAngle { 
+            get { return initialAngle; }
+        }
+
+        public double Speed { 
+            get { return speed; }
+        }
+
+        public double TimeMs {
+            get { return timeMS; }
+        }
+
+    }
+
+    class PointD {
+
+        double x, y;
+
+        public PointD(double x, double y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public PointD(float x, float y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public PointD(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public PointD(PointF p) {
+            x = p.X;
+            y = p.Y;
+        }
+
+        public PointD(Point p) {
+            x = p.X;
+            y = p.Y;
+        }
+
+        public double X {
+            get { return x; }
+            set { x = value; }
+        }
+
+        public double Y {
+            get { return y; }
+            set { y = value; }
+        }
+
+        public PointF toPointF() {
+            return new PointF((float)x, (float)(y));
+        }
+
+        public Point toPoint() {
+            return new Point((int)x, (int)(y));
+        }
+
+        public string toString() {
+            return "{X=" + x.ToString() + ", Y=" + y.ToString() + "}";
+        }
+
+        public bool equals(PointD other) { 
+            return x == other.x && y == other.y;
+        }
+
     }
 }
 
