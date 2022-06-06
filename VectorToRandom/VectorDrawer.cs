@@ -11,12 +11,89 @@ using System.Windows.Forms;
 namespace VectorToRandom {
     public partial class VectorDrawer : UserControl {
 
+        public event EventHandler NewPointDefined;
+        public event EventHandler NewPointAdded;
+
+        public event EventHandler StartTickProcess;
+        public event EventHandler EndTickProcess;
+
         Point startPoint;
-        DateTime startDateTime;
-        Color pointColor = Color.FromArgb(255, 255, 254);
+        DateTime startDateTime, startTick, startDrawingTick;
+        bool activeDrawing = false;
+        bool clearBeforeDrawing = true;
+        bool useCustomSize = false;
+
+        bool onTick = false;
+
+        double lastTickProcessMS = 0, lastTickDrawingProcessMS = 0;
+        double customWidth, customHeight;
 
         List<Vector> vectorList;
         Graphics g;
+
+        public bool StartTick {
+            get { return timer1.Enabled; }
+            set { timer1.Enabled = value; }
+        }
+
+        public bool ActiveDrawing {
+            get { return activeDrawing; }
+            set { activeDrawing = value; }
+        }
+        public bool ClearBeforeDrawing {
+            get { return clearBeforeDrawing; }
+            set { clearBeforeDrawing = value; }
+        }
+
+        public bool UseCustomSize {
+            get { return useCustomSize;}
+            set { useCustomSize = value; }
+        }
+
+        public double CustomWidth {
+            get { return customWidth; }
+            set { if (value > Width) 
+                    customWidth = value; 
+            }
+        }
+        public double CustomHeight {
+            get { return customHeight; }
+            set { if (value > Height) 
+                    customHeight = value; 
+            }
+        }
+
+        public double LastTickProcessMS {
+            get { return lastTickProcessMS; }
+        }
+
+        public double LastTickDrawingProcessMS {
+            get { return lastTickDrawingProcessMS; }
+        }
+
+        public List<Vector> Vectors {
+            get { return vectorList; }
+        }
+
+        protected virtual void OnNewPointDefined(EventArgsVector e) {
+            EventHandler handler = NewPointDefined;
+            handler?.Invoke(this, e);
+        }
+
+        protected virtual void OnNewPointAdded(EventArgsVector e) {
+            EventHandler handler = NewPointAdded;
+            handler?.Invoke(this, e);
+        }
+
+        protected virtual void OnStartTickProcess(EventArgs e) {
+            EventHandler handler = StartTickProcess;
+            handler?.Invoke(this, e);
+        }
+
+        protected virtual void OnEndTickProcess(EventArgs e) {
+            EventHandler handler = EndTickProcess;
+            handler?.Invoke(this, e);
+        }
 
         public VectorDrawer() {
             InitializeComponent();
@@ -31,13 +108,42 @@ namespace VectorToRandom {
 
         private void VectorDrawer_MouseClick(object sender, MouseEventArgs e) {
             if (startPoint.X != e.X || startPoint.Y != e.Y) {
-                vectorList.Add(new Vector(new PointD(startPoint), new PointD(e.Location), DateTime.Now.Subtract(startDateTime).TotalMilliseconds, this.Width, this.Height));
+                Vector v;
+                if (useCustomSize) {
+                     v = new Vector(new PointD(startPoint), new PointD(e.Location), DateTime.Now.Subtract(startDateTime).TotalMilliseconds, customWidth, customHeight);
+                } else {
+                    v = new Vector(new PointD(startPoint), new PointD(e.Location), DateTime.Now.Subtract(startDateTime).TotalMilliseconds, this.Width, this.Height);
+                }
+                
+                OnNewPointDefined(new EventArgsVector(v));
+                vectorList.Add(v);
+                OnNewPointAdded(new EventArgsVector(v));
             } 
         }
 
+        public void ClearVectors() {
+
+            while (onTick) ;
+
+            vectorList.Clear();
+        }
 
         private void DrawPoints() {
-            g.Clear(Color.FromArgb(64, 64, 64));
+
+            startDrawingTick = DateTime.Now;
+
+            if (clearBeforeDrawing) {
+                g.Clear(BackColor);
+            }
+
+            for (int i = 0; i < vectorList.Count; i++) {
+                for (int j = 0; j < vectorList[i].Points.Count; j++) {
+                    g.DrawRectangle(new Pen(Color.Red), new Rectangle((int)vectorList[i].Points[j].X, (int)vectorList[i].Points[j].Y, 1, 1));
+                }
+            }
+
+            lastTickDrawingProcessMS = DateTime.Now.Subtract(startDrawingTick).TotalMilliseconds;
+
             //g.DrawLine(new Pen(Brushes.Red), vectorList[0].StartPoint, vectorList[0].EndPoint);
             //g.DrawRectangle(new Pen(Brushes.Blue), new Rectangle(vectorList[0].StartPoint, new Size(5, 5)));
 
@@ -52,15 +158,7 @@ namespace VectorToRandom {
             //g.DrawRectangle(new Pen(Brushes.Blue), new Rectangle(Width - 60, Height - 60, 5, 5));
             //g.DrawLine(new Pen(Brushes.Red), Width - 60, Height - 60, (float)(Width - 60) + (float)(15 * Math.Cos(vectorList[0].angle / (double)180 * Math.PI)), (float)(Height - 60) + (float)(15 * Math.Sin(vectorList[0].angle / (double)180 * Math.PI)));
 
-            pointColor = updateColor(pointColor);
-
-            for (int i = 0; i < vectorList.Count; i++) {
-                for (int j = 0; j < vectorList[i].Points.Count; j++) {
-                    g.DrawRectangle(new Pen(pointColor), new Rectangle((int)vectorList[i].Points[j].X, (int)vectorList[i].Points[j].Y, 1, 1));
-                }
-            }
-
-            
+            //pointColor = updateColor(pointColor);
 
             //g.DrawRectangle(new Pen(pointColor), new Rectangle((int)vectorList[0].Points[vectorList[0].Points.Count - 1].X, (int)vectorList[0].Points[vectorList[0].Points.Count - 1].Y, 1, 1));
 
@@ -70,62 +168,35 @@ namespace VectorToRandom {
             g = this.CreateGraphics();
         }
 
-        private Color updateColor(Color c) {
-            if (c.R == 255 && c.G == 255) {
-                if (c.B == 254) {
-                    return Color.FromArgb(0, 255, 255);
-                } else {
-                    return Color.FromArgb(255, 255, c.B + 1);
-                }
-            } else if (c.G == 255 && c.B == 255) {
-                if (c.R == 254) {
-                    return Color.FromArgb(255, 0, 255);
-                } else {
-                    return Color.FromArgb(c.R + 1, 255, 255);
-                }
-            } else if (c.R == 255 && c.B == 255) {
-                if (c.G == 254) {
-                    return Color.FromArgb(255, 255, 0);
-                } else {
-                    return Color.FromArgb(255, c.G + 1, 255);
-                }
-            } else {
-                return c;
-            }
-        }
-
         private void timer1_Tick(object sender, EventArgs e) {
 
+            onTick = true;
+
+            OnStartTickProcess(EventArgs.Empty);
+            startTick = DateTime.Now;
+
             for (int i = 0; i < vectorList.Count; i++) {
-                vectorList[i].calcNextPoint();
+                vectorList[i].CalcNextPoint();
             }
 
-            DrawPoints();
+            if (activeDrawing) {
+                DrawPoints();
+            }
 
-        }
+            lastTickProcessMS = DateTime.Now.Subtract(startTick).TotalMilliseconds;
+            OnEndTickProcess(EventArgs.Empty);
 
-        private void button1_Click(object sender, EventArgs e) {
-            vectorList.Clear();
-
-            //test A
-            //vectorList.Add(new Vector(new Point(210, 250), new Point(10, 50), DateTime.Now.Subtract(startDateTime).TotalMilliseconds));
-
-            //506, 265, 520, 226 nice patetn
-            vectorList.Add(new Vector(new PointD(506, 265), new PointD(520, 226), 327, this.Width, this.Height));
-
-
-            DrawPoints();
-            timer1.Interval = 1;
-            timer1.Enabled = true;
+            onTick = false;
         }
     }
 
 
-    class Vector {
+    public class Vector {
 
         PointD startPoint, endPoint;
         PointD actualPoint, nextPointOffcet;
         List<PointD> points = new List<PointD>();
+        Color pointsColor = Color.FromArgb(255, 255, 254);
         public double width, height, timeMS, initialAngle, speed;
 
         const int MaxElemtns = 10;
@@ -152,7 +223,7 @@ namespace VectorToRandom {
             points.Add(endPoint);
         }
 
-        public PointD calcNextPoint() {
+        public PointD CalcNextPoint() {
             if (points.Count == MaxElemtns)
                 points.RemoveAt(0);
 
@@ -233,7 +304,31 @@ namespace VectorToRandom {
             return new PointD(0, 0);
         }
 
-        public string toString() {
+        private Color UpdateColor() {
+            if (pointsColor.R == 255 && pointsColor.G == 255) {
+                if (pointsColor.B == 254) {
+                    return Color.FromArgb(0, 255, 255);
+                } else {
+                    return Color.FromArgb(255, 255, pointsColor.B + 1);
+                }
+            } else if (pointsColor.G == 255 && pointsColor.B == 255) {
+                if (pointsColor.R == 254) {
+                    return Color.FromArgb(255, 0, 255);
+                } else {
+                    return Color.FromArgb(pointsColor.R + 1, 255, 255);
+                }
+            } else if (pointsColor.R == 255 && pointsColor.B == 255) {
+                if (pointsColor.G == 254) {
+                    return Color.FromArgb(255, 255, 0);
+                } else {
+                    return Color.FromArgb(255, pointsColor.G + 1, 255);
+                }
+            } else {
+                return pointsColor;
+            }
+        }
+        
+        public override string ToString() {
             return 
                 "{StartP=" + startPoint + ", EndP=" + endPoint + ", ActualP=" + actualPoint + 
                 ", NextPO=" + nextPointOffcet + ", Width=" + width + ", Height=" + height + 
@@ -260,6 +355,11 @@ namespace VectorToRandom {
             get { return nextPointOffcet; }
         }
 
+        public Color PointsColor {
+            get { return pointsColor; }
+            set { pointsColor = value; }
+        }
+
         public double InitialAngle { 
             get { return initialAngle; }
         }
@@ -274,7 +374,7 @@ namespace VectorToRandom {
 
     }
 
-    class PointD {
+    public class PointD {
 
         double x, y;
 
@@ -327,6 +427,21 @@ namespace VectorToRandom {
 
         public bool equals(PointD other) { 
             return x == other.x && y == other.y;
+        }
+
+    }
+
+    public class EventArgsVector : EventArgs {
+
+        Vector v;
+
+        public EventArgsVector (Vector v){
+            this.v = v;
+        }
+
+        public Vector Vector {
+            get { return v; }
+            set { v = value; }
         }
 
     }
