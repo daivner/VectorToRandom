@@ -35,15 +35,10 @@
             this.label2 = new System.Windows.Forms.Label();
             this.textBoxCustomW = new System.Windows.Forms.TextBox();
             this.textBoxCustomH = new System.Windows.Forms.TextBox();
-            this.buttonLoadVectors = new System.Windows.Forms.Button();
-            this.buttonSaveConfig = new System.Windows.Forms.Button();
-            this.checkBoxStartBytesGen = new System.Windows.Forms.CheckBox();
+            this.buttonExportVectors = new System.Windows.Forms.Button();
             this.textBoxReqBytes = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.labelGeneratedBytes = new System.Windows.Forms.Label();
-            this.checkBoxWriteDirectlyOnFile = new System.Windows.Forms.CheckBox();
-            this.radioButtonFileBytes = new System.Windows.Forms.RadioButton();
-            this.radioButtonHexFile = new System.Windows.Forms.RadioButton();
             this.buttonSetOutPathFile = new System.Windows.Forms.Button();
             this.buttonCancelProcess = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
@@ -52,9 +47,9 @@
             this.label5 = new System.Windows.Forms.Label();
             this.textBoxLog = new System.Windows.Forms.TextBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.buttonClearBytes = new System.Windows.Forms.Button();
+            this.saveFileDialogCube = new System.Windows.Forms.SaveFileDialog();
+            this.saveFileDialogVectors = new System.Windows.Forms.SaveFileDialog();
             this.vectorDrawer1 = new VectorToRandom.VectorDrawer();
-            this.radioButtonDBG = new System.Windows.Forms.RadioButton();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -119,9 +114,10 @@
             // 
             // buttonClearVectors
             // 
+            this.buttonClearVectors.Enabled = false;
             this.buttonClearVectors.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonClearVectors.ForeColor = System.Drawing.Color.SteelBlue;
-            this.buttonClearVectors.Location = new System.Drawing.Point(198, 64);
+            this.buttonClearVectors.ForeColor = System.Drawing.Color.DarkGray;
+            this.buttonClearVectors.Location = new System.Drawing.Point(249, 35);
             this.buttonClearVectors.Name = "buttonClearVectors";
             this.buttonClearVectors.Size = new System.Drawing.Size(98, 23);
             this.buttonClearVectors.TabIndex = 6;
@@ -143,7 +139,7 @@
             // 
             this.checkBoxCustomSize.AutoSize = true;
             this.checkBoxCustomSize.ForeColor = System.Drawing.Color.SteelBlue;
-            this.checkBoxCustomSize.Location = new System.Drawing.Point(6, 78);
+            this.checkBoxCustomSize.Location = new System.Drawing.Point(133, 6);
             this.checkBoxCustomSize.Name = "checkBoxCustomSize";
             this.checkBoxCustomSize.Size = new System.Drawing.Size(84, 17);
             this.checkBoxCustomSize.TabIndex = 8;
@@ -155,7 +151,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.ForeColor = System.Drawing.Color.SteelBlue;
-            this.label1.Location = new System.Drawing.Point(6, 103);
+            this.label1.Location = new System.Drawing.Point(133, 31);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(21, 13);
             this.label1.TabIndex = 10;
@@ -165,7 +161,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.ForeColor = System.Drawing.Color.SteelBlue;
-            this.label2.Location = new System.Drawing.Point(6, 129);
+            this.label2.Location = new System.Drawing.Point(133, 57);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(18, 13);
             this.label2.TabIndex = 12;
@@ -176,7 +172,7 @@
             this.textBoxCustomW.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(24)))), ((int)(((byte)(24)))));
             this.textBoxCustomW.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.textBoxCustomW.Enabled = false;
-            this.textBoxCustomW.Location = new System.Drawing.Point(32, 101);
+            this.textBoxCustomW.Location = new System.Drawing.Point(159, 29);
             this.textBoxCustomW.Name = "textBoxCustomW";
             this.textBoxCustomW.Size = new System.Drawing.Size(71, 20);
             this.textBoxCustomW.TabIndex = 14;
@@ -187,50 +183,29 @@
             this.textBoxCustomH.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(24)))), ((int)(((byte)(24)))));
             this.textBoxCustomH.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.textBoxCustomH.Enabled = false;
-            this.textBoxCustomH.Location = new System.Drawing.Point(32, 127);
+            this.textBoxCustomH.Location = new System.Drawing.Point(159, 55);
             this.textBoxCustomH.Name = "textBoxCustomH";
             this.textBoxCustomH.Size = new System.Drawing.Size(71, 20);
             this.textBoxCustomH.TabIndex = 15;
             this.textBoxCustomH.TextChanged += new System.EventHandler(this.textBoxCustomH_TextChanged);
             // 
-            // buttonLoadVectors
+            // buttonExportVectors
             // 
-            this.buttonLoadVectors.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonLoadVectors.ForeColor = System.Drawing.Color.SteelBlue;
-            this.buttonLoadVectors.Location = new System.Drawing.Point(198, 6);
-            this.buttonLoadVectors.Name = "buttonLoadVectors";
-            this.buttonLoadVectors.Size = new System.Drawing.Size(98, 23);
-            this.buttonLoadVectors.TabIndex = 16;
-            this.buttonLoadVectors.Text = "Load Vectors File";
-            this.buttonLoadVectors.UseVisualStyleBackColor = true;
-            // 
-            // buttonSaveConfig
-            // 
-            this.buttonSaveConfig.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonSaveConfig.ForeColor = System.Drawing.Color.SteelBlue;
-            this.buttonSaveConfig.Location = new System.Drawing.Point(198, 35);
-            this.buttonSaveConfig.Name = "buttonSaveConfig";
-            this.buttonSaveConfig.Size = new System.Drawing.Size(98, 23);
-            this.buttonSaveConfig.TabIndex = 17;
-            this.buttonSaveConfig.Text = "Save Vectors File";
-            this.buttonSaveConfig.UseVisualStyleBackColor = true;
-            // 
-            // checkBoxStartBytesGen
-            // 
-            this.checkBoxStartBytesGen.AutoSize = true;
-            this.checkBoxStartBytesGen.ForeColor = System.Drawing.Color.SteelBlue;
-            this.checkBoxStartBytesGen.Location = new System.Drawing.Point(323, 6);
-            this.checkBoxStartBytesGen.Name = "checkBoxStartBytesGen";
-            this.checkBoxStartBytesGen.Size = new System.Drawing.Size(127, 17);
-            this.checkBoxStartBytesGen.TabIndex = 18;
-            this.checkBoxStartBytesGen.Text = "Start Bytes Generator";
-            this.checkBoxStartBytesGen.UseVisualStyleBackColor = true;
+            this.buttonExportVectors.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.buttonExportVectors.ForeColor = System.Drawing.Color.SteelBlue;
+            this.buttonExportVectors.Location = new System.Drawing.Point(249, 6);
+            this.buttonExportVectors.Name = "buttonExportVectors";
+            this.buttonExportVectors.Size = new System.Drawing.Size(98, 23);
+            this.buttonExportVectors.TabIndex = 17;
+            this.buttonExportVectors.Text = "Export Vectors File";
+            this.buttonExportVectors.UseVisualStyleBackColor = true;
+            this.buttonExportVectors.Click += new System.EventHandler(this.buttonSaveConfig_Click);
             // 
             // textBoxReqBytes
             // 
             this.textBoxReqBytes.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(24)))), ((int)(((byte)(24)))));
             this.textBoxReqBytes.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBoxReqBytes.Location = new System.Drawing.Point(423, 29);
+            this.textBoxReqBytes.Location = new System.Drawing.Point(472, 6);
             this.textBoxReqBytes.Name = "textBoxReqBytes";
             this.textBoxReqBytes.Size = new System.Drawing.Size(98, 20);
             this.textBoxReqBytes.TabIndex = 19;
@@ -240,7 +215,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.ForeColor = System.Drawing.Color.SteelBlue;
-            this.label3.Location = new System.Drawing.Point(320, 31);
+            this.label3.Location = new System.Drawing.Point(369, 8);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(97, 13);
             this.label3.TabIndex = 20;
@@ -250,52 +225,17 @@
             // 
             this.labelGeneratedBytes.AutoSize = true;
             this.labelGeneratedBytes.ForeColor = System.Drawing.Color.SteelBlue;
-            this.labelGeneratedBytes.Location = new System.Drawing.Point(320, 52);
+            this.labelGeneratedBytes.Location = new System.Drawing.Point(369, 29);
             this.labelGeneratedBytes.Name = "labelGeneratedBytes";
             this.labelGeneratedBytes.Size = new System.Drawing.Size(112, 13);
             this.labelGeneratedBytes.TabIndex = 21;
             this.labelGeneratedBytes.Text = "Generated Bytes : 0/0";
             // 
-            // checkBoxWriteDirectlyOnFile
-            // 
-            this.checkBoxWriteDirectlyOnFile.AutoSize = true;
-            this.checkBoxWriteDirectlyOnFile.ForeColor = System.Drawing.Color.SteelBlue;
-            this.checkBoxWriteDirectlyOnFile.Location = new System.Drawing.Point(322, 68);
-            this.checkBoxWriteDirectlyOnFile.Name = "checkBoxWriteDirectlyOnFile";
-            this.checkBoxWriteDirectlyOnFile.Size = new System.Drawing.Size(128, 17);
-            this.checkBoxWriteDirectlyOnFile.TabIndex = 22;
-            this.checkBoxWriteDirectlyOnFile.Text = "Write Directly On File ";
-            this.checkBoxWriteDirectlyOnFile.UseVisualStyleBackColor = true;
-            // 
-            // radioButtonFileBytes
-            // 
-            this.radioButtonFileBytes.AutoSize = true;
-            this.radioButtonFileBytes.Checked = true;
-            this.radioButtonFileBytes.ForeColor = System.Drawing.Color.SteelBlue;
-            this.radioButtonFileBytes.Location = new System.Drawing.Point(323, 91);
-            this.radioButtonFileBytes.Name = "radioButtonFileBytes";
-            this.radioButtonFileBytes.Size = new System.Drawing.Size(109, 17);
-            this.radioButtonFileBytes.TabIndex = 23;
-            this.radioButtonFileBytes.TabStop = true;
-            this.radioButtonFileBytes.Text = "Use Bytes On File";
-            this.radioButtonFileBytes.UseVisualStyleBackColor = true;
-            // 
-            // radioButtonHexFile
-            // 
-            this.radioButtonHexFile.AutoSize = true;
-            this.radioButtonHexFile.ForeColor = System.Drawing.Color.SteelBlue;
-            this.radioButtonHexFile.Location = new System.Drawing.Point(438, 91);
-            this.radioButtonHexFile.Name = "radioButtonHexFile";
-            this.radioButtonHexFile.Size = new System.Drawing.Size(118, 17);
-            this.radioButtonHexFile.TabIndex = 24;
-            this.radioButtonHexFile.Text = "Use Str Hex On File";
-            this.radioButtonHexFile.UseVisualStyleBackColor = true;
-            // 
             // buttonSetOutPathFile
             // 
             this.buttonSetOutPathFile.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonSetOutPathFile.ForeColor = System.Drawing.Color.SteelBlue;
-            this.buttonSetOutPathFile.Location = new System.Drawing.Point(319, 122);
+            this.buttonSetOutPathFile.Location = new System.Drawing.Point(368, 64);
             this.buttonSetOutPathFile.Name = "buttonSetOutPathFile";
             this.buttonSetOutPathFile.Size = new System.Drawing.Size(98, 23);
             this.buttonSetOutPathFile.TabIndex = 25;
@@ -308,12 +248,13 @@
             this.buttonCancelProcess.Enabled = false;
             this.buttonCancelProcess.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonCancelProcess.ForeColor = System.Drawing.Color.DarkGray;
-            this.buttonCancelProcess.Location = new System.Drawing.Point(423, 122);
+            this.buttonCancelProcess.Location = new System.Drawing.Point(472, 64);
             this.buttonCancelProcess.Name = "buttonCancelProcess";
             this.buttonCancelProcess.Size = new System.Drawing.Size(98, 23);
             this.buttonCancelProcess.TabIndex = 26;
             this.buttonCancelProcess.Text = "Cancel Process";
             this.buttonCancelProcess.UseVisualStyleBackColor = true;
+            this.buttonCancelProcess.Click += new System.EventHandler(this.buttonCancelProcess_Click);
             // 
             // tabControl1
             // 
@@ -329,8 +270,6 @@
             // tabPage1
             // 
             this.tabPage1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
-            this.tabPage1.Controls.Add(this.radioButtonDBG);
-            this.tabPage1.Controls.Add(this.buttonClearBytes);
             this.tabPage1.Controls.Add(this.buttonClearLog);
             this.tabPage1.Controls.Add(this.label5);
             this.tabPage1.Controls.Add(this.textBoxLog);
@@ -347,16 +286,11 @@
             this.tabPage1.Controls.Add(this.labelTickLength);
             this.tabPage1.Controls.Add(this.buttonClearVectors);
             this.tabPage1.Controls.Add(this.textBoxCustomH);
-            this.tabPage1.Controls.Add(this.checkBoxStartBytesGen);
-            this.tabPage1.Controls.Add(this.radioButtonHexFile);
-            this.tabPage1.Controls.Add(this.checkBoxWriteDirectlyOnFile);
-            this.tabPage1.Controls.Add(this.buttonLoadVectors);
             this.tabPage1.Controls.Add(this.label2);
             this.tabPage1.Controls.Add(this.labelTickDrawingLength);
             this.tabPage1.Controls.Add(this.checkBoxEnableDrawing);
             this.tabPage1.Controls.Add(this.textBoxCustomW);
-            this.tabPage1.Controls.Add(this.buttonSaveConfig);
-            this.tabPage1.Controls.Add(this.radioButtonFileBytes);
+            this.tabPage1.Controls.Add(this.buttonExportVectors);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
@@ -368,7 +302,7 @@
             // 
             this.buttonClearLog.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonClearLog.ForeColor = System.Drawing.Color.SteelBlue;
-            this.buttonClearLog.Location = new System.Drawing.Point(198, 122);
+            this.buttonClearLog.Location = new System.Drawing.Point(248, 64);
             this.buttonClearLog.Name = "buttonClearLog";
             this.buttonClearLog.Size = new System.Drawing.Size(98, 23);
             this.buttonClearLog.TabIndex = 30;
@@ -410,17 +344,20 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Vectors Page";
             // 
-            // buttonClearBytes
+            // saveFileDialogCube
             // 
-            this.buttonClearBytes.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonClearBytes.ForeColor = System.Drawing.Color.SteelBlue;
-            this.buttonClearBytes.Location = new System.Drawing.Point(198, 93);
-            this.buttonClearBytes.Name = "buttonClearBytes";
-            this.buttonClearBytes.Size = new System.Drawing.Size(98, 23);
-            this.buttonClearBytes.TabIndex = 31;
-            this.buttonClearBytes.Text = "Clear Bytes";
-            this.buttonClearBytes.UseVisualStyleBackColor = true;
-            this.buttonClearBytes.Click += new System.EventHandler(this.buttonClearBytes_Click);
+            this.saveFileDialogCube.AddExtension = false;
+            this.saveFileDialogCube.AutoUpgradeEnabled = false;
+            this.saveFileDialogCube.DefaultExt = "*.Cube";
+            this.saveFileDialogCube.Filter = "Byte Cube files(*.ByteCube) | *.ByteCube | Hexadecimal Cube files(*.HexCube) | *." +
+    "HexCube | Decimal Cube files(*.DecimalCube) | *.DecimalCube";
+            // 
+            // saveFileDialogVectors
+            // 
+            this.saveFileDialogVectors.AddExtension = false;
+            this.saveFileDialogVectors.AutoUpgradeEnabled = false;
+            this.saveFileDialogVectors.DefaultExt = "*.Vectors";
+            this.saveFileDialogVectors.Filter = "Vectors files(*.Vectors) | *.Vectors | All files(*.*) | *.* ";
             // 
             // vectorDrawer1
             // 
@@ -437,20 +374,8 @@
             this.vectorDrawer1.StartTick = true;
             this.vectorDrawer1.TabIndex = 0;
             this.vectorDrawer1.UseCustomSize = false;
-            this.vectorDrawer1.NewPointAdded += new System.EventHandler(this.vectorDrawer1_NewPointAdded);
+            this.vectorDrawer1.NewVectorAdded += new System.EventHandler(this.vectorDrawer1_NewVectorAdded);
             this.vectorDrawer1.EndTickProcess += new System.EventHandler(this.vectorDrawer1_EndTickProcess);
-            // 
-            // radioButtonDBG
-            // 
-            this.radioButtonDBG.AutoSize = true;
-            this.radioButtonDBG.ForeColor = System.Drawing.Color.SteelBlue;
-            this.radioButtonDBG.Location = new System.Drawing.Point(499, 67);
-            this.radioButtonDBG.Name = "radioButtonDBG";
-            this.radioButtonDBG.Size = new System.Drawing.Size(57, 17);
-            this.radioButtonDBG.TabIndex = 32;
-            this.radioButtonDBG.TabStop = true;
-            this.radioButtonDBG.Text = "Debug";
-            this.radioButtonDBG.UseVisualStyleBackColor = true;
             // 
             // FormMain
             // 
@@ -487,15 +412,10 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox textBoxCustomW;
         private System.Windows.Forms.TextBox textBoxCustomH;
-        private System.Windows.Forms.Button buttonLoadVectors;
-        private System.Windows.Forms.Button buttonSaveConfig;
-        private System.Windows.Forms.CheckBox checkBoxStartBytesGen;
+        private System.Windows.Forms.Button buttonExportVectors;
         private System.Windows.Forms.TextBox textBoxReqBytes;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label labelGeneratedBytes;
-        private System.Windows.Forms.CheckBox checkBoxWriteDirectlyOnFile;
-        private System.Windows.Forms.RadioButton radioButtonFileBytes;
-        private System.Windows.Forms.RadioButton radioButtonHexFile;
         private System.Windows.Forms.Button buttonSetOutPathFile;
         private System.Windows.Forms.Button buttonCancelProcess;
         private System.Windows.Forms.TabControl tabControl1;
@@ -504,8 +424,8 @@
         private System.Windows.Forms.TextBox textBoxLog;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.Button buttonClearLog;
-        private System.Windows.Forms.Button buttonClearBytes;
-        private System.Windows.Forms.RadioButton radioButtonDBG;
+        private System.Windows.Forms.SaveFileDialog saveFileDialogCube;
+        private System.Windows.Forms.SaveFileDialog saveFileDialogVectors;
     }
 }
 

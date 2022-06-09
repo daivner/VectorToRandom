@@ -11,8 +11,8 @@ using System.Windows.Forms;
 namespace VectorToRandom {
     public partial class VectorDrawer : UserControl {
 
-        public event EventHandler NewPointDefined;
-        public event EventHandler NewPointAdded;
+        public event EventHandler NewVectorDefined;
+        public event EventHandler NewVectorAdded;
 
         public event EventHandler StartTickProcess;
         public event EventHandler EndTickProcess;
@@ -75,13 +75,13 @@ namespace VectorToRandom {
             get { return vectorList; }
         }
 
-        protected virtual void OnNewPointDefined(EventArgsVector e) {
-            EventHandler handler = NewPointDefined;
+        protected virtual void OnNewVectorDefined(EventArgsVector e) {
+            EventHandler handler = NewVectorDefined;
             handler?.Invoke(this, e);
         }
 
-        protected virtual void OnNewPointAdded(EventArgsVector e) {
-            EventHandler handler = NewPointAdded;
+        protected virtual void OnNewVectorAdded(EventArgsVector e) {
+            EventHandler handler = NewVectorAdded;
             handler?.Invoke(this, e);
         }
 
@@ -108,16 +108,20 @@ namespace VectorToRandom {
 
         private void VectorDrawer_MouseClick(object sender, MouseEventArgs e) {
             if (startPoint.X != e.X || startPoint.Y != e.Y) {
-                Vector v;
-                if (useCustomSize) {
-                     v = new Vector(new PointD(startPoint), new PointD(e.Location), DateTime.Now.Subtract(startDateTime).TotalMilliseconds, customWidth, customHeight);
-                } else {
-                    v = new Vector(new PointD(startPoint), new PointD(e.Location), DateTime.Now.Subtract(startDateTime).TotalMilliseconds, this.Width, this.Height);
+                double ms = DateTime.Now.Subtract(startDateTime).TotalMilliseconds;
+                if (ms != 0) {
+                    Vector v;
+                    if (useCustomSize) {
+                        v = new Vector(new PointD(startPoint), new PointD(e.Location), ms, customWidth, customHeight);
+                    } else {
+                        v = new Vector(new PointD(startPoint), new PointD(e.Location), ms, this.Width, this.Height);
+                    }
+
+                    OnNewVectorDefined(new EventArgsVector(v));
+                    vectorList.Add(v);
+                    OnNewVectorAdded(new EventArgsVector(v));
                 }
                 
-                OnNewPointDefined(new EventArgsVector(v));
-                vectorList.Add(v);
-                OnNewPointAdded(new EventArgsVector(v));
             } 
         }
 
@@ -136,9 +140,11 @@ namespace VectorToRandom {
                 g.Clear(BackColor);
             }
 
-            for (int i = 0; i < vectorList.Count; i++) {
-                for (int j = 0; j < vectorList[i].Points.Count; j++) {
-                    g.DrawRectangle(new Pen(Color.Red), new Rectangle((int)vectorList[i].Points[j].X, (int)vectorList[i].Points[j].Y, 1, 1));
+            int i, j;
+
+            for (i = 0; i < vectorList.Count; i++) {
+                for (j = 0; j < vectorList[i].Points.Count; j++) {
+                    g.DrawRectangle(new Pen(Color.DeepSkyBlue), new Rectangle((int)vectorList[i].Points[j].X, (int)vectorList[i].Points[j].Y, 2, 2));
                 }
             }
 
@@ -421,7 +427,7 @@ namespace VectorToRandom {
             return new Point((int)x, (int)(y));
         }
 
-        public string toString() {
+        public override string ToString() {
             return "{X=" + x.ToString() + ", Y=" + y.ToString() + "}";
         }
 
